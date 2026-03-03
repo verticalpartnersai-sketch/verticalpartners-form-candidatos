@@ -58,16 +58,31 @@ CREATE INDEX idx_hiring_applications_created_at
   ON hiring_applications (created_at DESC);
 
 -- ============================================================
+-- Privileges (necessario alem das RLS policies)
+-- ============================================================
+
+GRANT ALL ON hiring_applications TO anon;
+GRANT ALL ON hiring_applications TO authenticated;
+
+-- ============================================================
 -- Row Level Security (RLS)
 -- ============================================================
 
 ALTER TABLE hiring_applications ENABLE ROW LEVEL SECURITY;
 
--- INSERT: qualquer um pode (formulario publico, anon role)
+-- INSERT: anon pode inserir (formulario publico)
 CREATE POLICY "Allow public insert"
   ON hiring_applications
   FOR INSERT
   TO anon
+  WITH CHECK (true);
+
+-- INSERT: authenticated tambem pode inserir
+-- (client Supabase compartilha sessao — admin logado envia requests como authenticated)
+CREATE POLICY "Allow authenticated insert"
+  ON hiring_applications
+  FOR INSERT
+  TO authenticated
   WITH CHECK (true);
 
 -- SELECT: apenas usuarios autenticados (admin)

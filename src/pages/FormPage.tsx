@@ -6,6 +6,7 @@ import { useFormEngine } from "@/hooks/useFormEngine"
 import { useKeyboardNavigation } from "@/hooks/useKeyboardNavigation"
 import { useDiscEngine } from "@/hooks/useDiscEngine"
 import { useDiscCalculator, calculateDiscResult } from "@/hooks/useDiscCalculator"
+import { useRealtimeSync } from "@/hooks/useRealtimeSync"
 import { getQuestionsForPosition } from "@/data/questions"
 import { DISC_TOTAL_BLOCKS } from "@/data/disc-blocks"
 import { buildPayload, submitApplication } from "@/lib/submit-application"
@@ -36,6 +37,9 @@ export function FormPage() {
   const discEngine = useDiscEngine()
   const discResult = useDiscCalculator(discEngine.answers)
 
+  // Real-time sync to Supabase
+  const realtimeSync = useRealtimeSync(positionId)
+
   const totalItems = questions.length + DISC_TOTAL_BLOCKS
   const globalProgress = useMemo(() => {
     switch (phase) {
@@ -53,18 +57,32 @@ export function FormPage() {
     }
   }, [phase, formEngine.currentIndex, discEngine.currentIndex, questions.length, totalItems])
 
-  // Override form engine completion to transition to DISC
+  // Wrap setAnswer to also sync personal fields in real-time
+  const handleSetAnswer = useCallback(
+    (questionId: string, value: string) => {
+      formEngine.setAnswer(questionId, value)
+      realtimeSync.syncAnswer(questionId, value)
+    },
+    [formEngine, realtimeSync],
+  )
+
+  // Override form engine completion to transition to DISC + sync answers
   const handleFormNext = useCallback((): boolean => {
     const isLastQuestion = formEngine.currentIndex === questions.length - 1
     if (isLastQuestion) {
       const success = formEngine.goNext()
       if (success) {
+        realtimeSync.syncOnAdvance(formEngine.answers)
         setPhase("disc-transition")
       }
       return success
     }
-    return formEngine.goNext()
-  }, [formEngine, questions.length])
+    const success = formEngine.goNext()
+    if (success) {
+      realtimeSync.syncOnAdvance(formEngine.answers)
+    }
+    return success
+  }, [formEngine, questions.length, realtimeSync])
 
   // Use keyboard nav only during questions phase
   useKeyboardNavigation(
@@ -76,7 +94,18 @@ export function FormPage() {
     setPhase("disc")
   }, [])
 
-  // Fire-and-forget submission
+  // Wrap DISC setBlockAnswer to also sync
+  const handleSetBlockAnswer = useCallback(
+    (blockId: number, answer: Parameters<typeof discEngine.setBlockAnswer>[1]) => {
+      discEngine.setBlockAnswer(blockId, answer)
+      // Sync after React state update
+      const updatedAnswers = { ...discEngine.answers, [blockId]: answer }
+      realtimeSync.syncDiscBlock(updatedAnswers)
+    },
+    [discEngine, realtimeSync],
+  )
+
+  // Fire-and-forget submission (fallback when draft sync fails)
   const doSubmit = useCallback(async (payload: SubmissionPayload) => {
     setSubmitError(null)
     const result = await submitApplication(payload)
@@ -93,32 +122,41 @@ export function FormPage() {
     }
   }, [doSubmit])
 
-  // Override DISC engine completion → loading phase
+  // Override DISC engine completion → finalize draft + loading phase
   const handleDiscNext = useCallback((): boolean => {
     const isLastBlock = discEngine.currentIndex === DISC_TOTAL_BLOCKS - 1
     if (isLastBlock) {
       const success = discEngine.goNext()
       if (success) {
-        // Calculate result now (before state updates)
         const result = calculateDiscResult(discEngine.answers)
         setFinalResult(result)
 
-        // Build payload and submit in background
-        const payload = buildPayload(
-          positionId,
-          formEngine.answers,
-          discEngine.answers,
-          result,
-        )
-        doSubmit(payload)
-        pendingPayloadRef.current = payload
+        // Finalize draft (status draft → new)
+        realtimeSync.finalize(result.scores, result.profileCode).then((ok) => {
+          if (!ok) {
+            // Fallback: full INSERT if draft finalization failed
+            const payload = buildPayload(
+              positionId,
+              formEngine.answers,
+              discEngine.answers,
+              result,
+            )
+            doSubmit(payload)
+            pendingPayloadRef.current = payload
+          }
+        })
 
         setPhase("loading")
       }
       return success
     }
-    return discEngine.goNext()
-  }, [discEngine, positionId, formEngine.answers, doSubmit])
+
+    const success = discEngine.goNext()
+    if (success) {
+      realtimeSync.syncDiscBlock(discEngine.answers)
+    }
+    return success
+  }, [discEngine, positionId, formEngine.answers, doSubmit, realtimeSync])
 
   // Loading → complete after 2.5s
   useEffect(() => {
@@ -175,7 +213,7 @@ export function FormPage() {
             questionNumber={formEngine.currentIndex + 1}
             value={formEngine.currentAnswer}
             onChange={(value) =>
-              formEngine.setAnswer(formEngine.currentQuestion.id, value)
+              handleSetAnswer(formEngine.currentQuestion.id, value)
             }
             validationError={formEngine.validationError}
             onNext={handleFormNext}
@@ -200,7 +238,7 @@ export function FormPage() {
             blockIndex={discEngine.currentIndex}
             totalBlocks={DISC_TOTAL_BLOCKS}
             answer={discEngine.currentAnswer}
-            onAnswer={discEngine.setBlockAnswer}
+            onAnswer={handleSetBlockAnswer}
             onClear={discEngine.clearBlockAnswer}
             onNext={handleDiscNext}
             onPrev={discEngine.goPrev}

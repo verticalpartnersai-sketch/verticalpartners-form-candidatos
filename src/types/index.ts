@@ -121,7 +121,7 @@ export type UseFormEngineReturn = FormEngineState & FormEngineActions
 
 // --- Admin Types ---
 
-export type ApplicationStatus = "new" | "reviewed" | "approved" | "rejected" | "interview"
+export type ApplicationStatus = "draft" | "new" | "reviewed" | "approved" | "rejected" | "interview"
 
 export type PositionId = "gestor-trafego" | "cs-suporte" | "dev-senior-fullstack"
 

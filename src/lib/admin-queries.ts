@@ -12,6 +12,9 @@ export async function fetchApplications(
 
   let query = supabase.from("hiring_applications").select("*")
 
+  // Sempre excluir drafts (candidaturas em andamento)
+  query = query.neq("status", "draft")
+
   if (filters.position !== "all") {
     query = query.eq("position", filters.position)
   }
