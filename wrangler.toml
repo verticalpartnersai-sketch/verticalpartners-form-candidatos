@@ -1,3 +1,5 @@
-name = "formulario-contratacao-vp"
-pages_build_output_dir = "dist"
+name = "verticalpartners-form-candidatos"
 compatibility_date = "2025-01-01"
+
+[assets]
+directory = "./dist"
