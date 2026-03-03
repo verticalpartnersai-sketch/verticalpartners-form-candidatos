@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { PositionCard } from "@/components/form/PositionCard"
+import { InfoModal } from "@/components/form/InfoModal"
 import { POSITIONS } from "@/lib/positions"
 
 const containerVariants = {
@@ -41,6 +42,7 @@ const cardVariants = {
 export function SelectPosition() {
   const navigate = useNavigate()
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [modalOpen, setModalOpen] = useState<"ia4sales" | "vertical" | null>(null)
 
   function handleSelect(positionId: string) {
     setSelectedId(positionId)
@@ -95,6 +97,90 @@ export function SelectPosition() {
                 </motion.div>
               ))}
             </motion.div>
+
+            {/* Botões de informação */}
+            <motion.div
+              className="mb-16 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
+              variants={itemVariants}
+            >
+              <button
+                type="button"
+                onClick={() => setModalOpen("ia4sales")}
+                className="rounded-sm border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-text-secondary transition-all hover:border-gold/30 hover:bg-white/[0.07] hover:text-gold"
+              >
+                Conhecer IA Four Sales
+              </button>
+              <button
+                type="button"
+                onClick={() => setModalOpen("vertical")}
+                className="rounded-sm border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-text-secondary transition-all hover:border-gold/30 hover:bg-white/[0.07] hover:text-gold"
+              >
+                Sobre Vertical Partners
+              </button>
+            </motion.div>
+
+            {/* Modais */}
+            <InfoModal
+              open={modalOpen === "ia4sales"}
+              onClose={() => setModalOpen(null)}
+              title="IA Four Sales"
+            >
+              <p className="mb-3">
+                O IA Four Sales é um CRM inteligente com agentes de IA integrados
+                para vendas, atendimento ao cliente e suporte, operando diretamente
+                via WhatsApp e Instagram.
+              </p>
+              <p className="mb-4">
+                Desenvolvido pela Vertical Partners, o produto automatiza a captação
+                de leads, qualificação, follow-up e atendimento, permitindo que
+                empresas escalem suas operações comerciais sem aumentar
+                proporcionalmente a equipe.
+              </p>
+              <p className="text-xs text-gray-500">
+                <a
+                  href="https://iafoursales.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline transition-colors hover:text-gray-700"
+                >
+                  iafoursales.com
+                </a>
+              </p>
+            </InfoModal>
+
+            <InfoModal
+              open={modalOpen === "vertical"}
+              onClose={() => setModalOpen(null)}
+              title="Vertical Partners"
+            >
+              <p className="mb-3">
+                A Vertical Partners é uma startup brasileira de tecnologia focada em
+                desenvolvimento de softwares com inteligência artificial. Fundada por
+                Mateus Paz e José Júnior, a empresa desenvolve softwares que utilizam
+                inteligência artificial para alcançar proporções significativamente
+                maiores.
+              </p>
+              <p className="mb-3">
+                Um dos nossos produtos é o IA Four Sales, que estamos lançando para o
+                mercado atualmente. Em breve, estaremos lançando outros produtos com o
+                intuito de resolver problemas reais de empresas por meio de automação
+                inteligente e tecnologia de ponta.
+              </p>
+              <p className="mb-4 text-gray-600">
+                <strong className="text-gray-800">Cultura:</strong> Startup enxuta,
+                autonomia total, velocidade, IA-first e comunicação direta.
+              </p>
+              <p className="text-xs text-gray-500">
+                <a
+                  href="https://verticalpartners.com.br"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline transition-colors hover:text-gray-700"
+                >
+                  verticalpartners.com.br
+                </a>
+              </p>
+            </InfoModal>
 
             {/* Rodapé */}
             <motion.footer
