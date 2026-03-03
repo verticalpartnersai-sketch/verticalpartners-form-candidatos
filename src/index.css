@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Background colors */
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #0A0E1A;
+  --color-bg-card: rgba(34, 32, 82, 0.4);
+  --color-bg-card-solid: #222052;
+  --color-bg-input: rgba(0, 0, 0, 0.3);
+
+  /* Accent colors */
+  --color-gold: #D2B68A;
+  --color-cream: #EEE5D3;
+  --color-electric-blue: #2B7FFF;
+  --color-cyan: #00A3FF;
+
+  /* Neutral colors */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #B7B7B7;
+  --color-text-muted: rgba(255, 255, 255, 0.5);
+
+  /* Border colors */
+  --color-border-gold: rgba(210, 182, 138, 0.15);
+  --color-border-silver: rgba(183, 183, 183, 0.1);
+
+  /* Glow colors */
+  --color-glow-gold: rgba(210, 182, 138, 0.3);
+  --color-glow-blue: rgba(43, 127, 255, 0.3);
+
+  /* DISC colors */
+  --color-disc-d: #E74C3C;
+  --color-disc-i: #F1C40F;
+  --color-disc-s: #2ECC71;
+  --color-disc-c: #3498DB;
+}
+
+/* Global styles */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background: radial-gradient(ellipse at center, #0A0E1A 0%, #000000 70%);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Selection */
+::selection {
+  background: rgba(210, 182, 138, 0.3);
+  color: #FFFFFF;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(210, 182, 138, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(210, 182, 138, 0.4);
+}
