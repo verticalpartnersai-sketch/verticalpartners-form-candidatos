@@ -177,7 +177,7 @@ export const TRAFFIC_QUESTIONS: readonly Question[] = [
     type: "textarea",
     section: "D",
     sectionLabel: "Cultura e Comportamento",
-    question: "O que te atraiu nessa vaga? Por que aceitar R$1.500/mês numa startup ao invés de pegar vários clientes freelancer?",
+    question: "O que te atraiu nessa vaga? Por que aceitar um fixo mensal numa startup ao invés de pegar vários clientes freelancer?",
     placeholder: "Conte sua motivação...",
     required: true,
     minLength: 50,

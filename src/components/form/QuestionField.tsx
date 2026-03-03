@@ -3,6 +3,13 @@ import { TextArea } from "@/components/ui/TextArea"
 import { RadioGroup } from "@/components/ui/RadioGroup"
 import type { Question } from "@/types"
 
+function formatPhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 11)
+  if (digits.length <= 2) return digits.length ? `(${digits}` : ""
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+}
+
 interface QuestionFieldProps {
   question: Question
   value: string
@@ -61,7 +68,7 @@ export function QuestionField({
         return (
           <Input
             value={value}
-            onChange={onChange}
+            onChange={(v) => onChange(formatPhone(v))}
             placeholder={question.placeholder}
             type="tel"
           />

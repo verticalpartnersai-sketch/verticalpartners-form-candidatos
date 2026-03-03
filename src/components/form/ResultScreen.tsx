@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import { Sparkles, ExternalLink } from "lucide-react"
+import { ExternalLink } from "lucide-react"
 import { GlowCard } from "@/components/ui/GlowCard"
 import { ProgressBar } from "@/components/ui/ProgressBar"
 import { DiscRadarChart } from "@/components/form/DiscRadarChart"
@@ -63,18 +63,6 @@ export function ResultScreen({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <motion.div
-              className="mx-auto mb-5 inline-flex h-[52px] w-[52px] items-center justify-center"
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            >
-              <Sparkles className="h-10 w-10 text-gold" />
-            </motion.div>
-
             <h1 className="mb-3 text-[28px] font-semibold leading-tight text-text-primary">
               Parabéns por chegar até aqui!
             </h1>

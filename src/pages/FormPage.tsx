@@ -122,7 +122,7 @@ export function FormPage() {
     }
   }, [doSubmit])
 
-  // Override DISC engine completion → finalize draft + loading phase
+  // Override DISC engine completion → finalize draft + submit + loading phase
   const handleDiscNext = useCallback((): boolean => {
     const isLastBlock = discEngine.currentIndex === DISC_TOTAL_BLOCKS - 1
     if (isLastBlock) {
@@ -131,20 +131,19 @@ export function FormPage() {
         const result = calculateDiscResult(discEngine.answers)
         setFinalResult(result)
 
-        // Finalize draft (status draft → new)
-        realtimeSync.finalize(result.scores, result.profileCode).then((ok) => {
-          if (!ok) {
-            // Fallback: full INSERT if draft finalization failed
-            const payload = buildPayload(
-              positionId,
-              formEngine.answers,
-              discEngine.answers,
-              result,
-            )
-            doSubmit(payload)
-            pendingPayloadRef.current = payload
-          }
-        })
+        // Finalize draft (status draft → new) — fire-and-forget
+        realtimeSync.finalize(result.scores, result.profileCode)
+
+        // Always submit full payload as safety net
+        // (draft finalize may silently fail if RLS blocks the PATCH)
+        const payload = buildPayload(
+          positionId,
+          formEngine.answers,
+          discEngine.answers,
+          result,
+        )
+        doSubmit(payload)
+        pendingPayloadRef.current = payload
 
         setPhase("loading")
       }

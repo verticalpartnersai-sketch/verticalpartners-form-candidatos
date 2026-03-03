@@ -39,9 +39,9 @@ export function DiscRadarChart({ scores }: DiscRadarChartProps) {
   })
 
   return (
-    <div className="mx-auto" style={{ width: 280, height: 280 }}>
+    <div className="mx-auto" style={{ width: 320, height: 300 }}>
       <ResponsiveContainer width="100%" height="100%">
-        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+        <RadarChart cx="50%" cy="50%" outerRadius="65%" data={data}>
           <PolarGrid
             stroke="rgba(255, 255, 255, 0.08)"
             strokeDasharray="3 3"
